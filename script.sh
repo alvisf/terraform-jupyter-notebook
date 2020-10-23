@@ -39,7 +39,7 @@ make
 sudo make install
 
 sudo touch /etc/passwd-s3fs
-echo "AKIAQOMZWADAGX6RPQMQ:KwxkLfVxTgmGRnHEb4XFdLYRaSxKFcamjjTXx/R+" | sudo tee -a /etc/passwd-s3fs
+echo "<key>:<secrect>" | sudo tee -a /etc/passwd-s3fs
 sudo chmod 640 /etc/passwd-s3fs
 
 sudo mkdir /mys3bucket
