@@ -22,3 +22,26 @@ runuser -l ec2-user -c 'jupyter notebook --generate-config' &&
     sed -i -e "s/#c.NotebookApp.ip = 'localhost'/c.NotebookApp.ip = '"$(curl http://169.254.169.254/latest/meta-data/public-hostname)"'/g" /home/ec2-user/.jupyter/jupyter_notebook_config.py &&
     sed -i -e "s/#c.NotebookApp.allow_origin = ''/c.NotebookApp.allow_origin = '*'/g" /home/ec2-user/.jupyter/jupyter_notebook_config.py &&
     sed -i -e "s/#c.NotebookApp.open_browser = True/c.NotebookApp.open_browser = False/g" /home/ec2-user/.jupyter/jupyter_notebook_config.py
+    
+   
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+export LC_COLLATE=C
+export LC_CTYPE=en_US.UTF-8
+sudo yum -y install automake fuse fuse-devel gcc-c++ git libcurl-devel libxml2-devel make openssl-devel
+
+git clone https://github.com/s3fs-fuse/s3fs-fuse.git
+
+cd s3fs-fuse
+./autogen.sh
+./configure -prefix=/usr -with-openssl
+make
+sudo make install
+
+sudo touch /etc/passwd-s3fs
+echo "AKIAQOMZWADAGX6RPQMQ:KwxkLfVxTgmGRnHEb4XFdLYRaSxKFcamjjTXx/R+" | sudo tee -a /etc/passwd-s3fs
+sudo chmod 640 /etc/passwd-s3fs
+
+sudo mkdir /mys3bucket
+sed -i -e "s/#c.Application.allow_admin = False/c.Application.allow_admin = True/g" /home/ec2-user/.jupyter/jupyter_notebook_config.py
+sudo s3fs test-jupyter-conn -o use_cache=/tmp -o allow_other -o uid=1000 -o mp_umask=002 -o multireq_max=5 /mys3bucket
